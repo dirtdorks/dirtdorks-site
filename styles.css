@@ -1,4 +1,4 @@
-html, body {
+html, body {@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700&display=swap')
   margin: 0;
   padding: 0;
   height: 100%;
@@ -33,17 +33,61 @@ html, body {
 
 /* TRAIL SIGN */
 .trail-sign {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.85);
-  padding: 10px 22px;
-  border-radius: 6px;
-  font-weight: 700;
-  text-transform: uppercase;
-  z-index: 1000;
-  backdrop-filter: blur(6px);
+position: absolute;
+top: 16px;
+right: 16px;
+z-index: 1000;
+
+/* Wood base color */
+background-color: #1f3d2b;
+
+/* Subtle wood grain using gradients */
+background-image:
+repeating-linear-gradient(
+90deg,
+rgba(255,255,255,0.03) 0px,
+rgba(255,255,255,0.03) 1px,
+transparent 1px,
+transparent 4px
+),
+linear-gradient(
+to bottom,
+#274a35,
+#1f3d2b
+);
+
+color: #e8e1cf; /* beige text */
+
+padding: 16px 32px;
+border-radius: 8px;
+
+font-family: 'Montserrat Alternates', sans-serif;
+font-size: 17px;
+font-weight: 700;
+letter-spacing: 1.6px;
+text-transform: uppercase;
+
+/* National Park sign border */
+border: 3px solid #13261b;
+
+/* Mossy edge illusion */
+box-shadow:
+0 4px 0 #13261b,
+0 0 0 4px rgba(31,61,43,0.6),
+inset 0 0 12px rgba(24,64,38,0.8);
+}
+.trail-sign::after {
+content: "";
+position: absolute;
+inset: -6px;
+border-radius: 10px;
+background: radial-gradient(
+circle at top left,
+rgba(95,140,90,0.35),
+transparent 60%
+);
+pointer-events: none;
+z-index: -1;
 }
 
 /* INSTAGRAM BUTTON */
@@ -71,4 +115,13 @@ footer {
 .instagram-btn img {
   width: 20px;
   height: 20px;
+
+}
+@media (max-width: 480px) {
+.trail-sign {
+top: 76px;
+right: 12px;
+font-size: 15px;
+padding: 14px 24px;
+}
 }
