@@ -34,14 +34,13 @@ html, body {@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alt
 /* TRAIL SIGN */
 .trail-sign {
 position: absolute;
-top: 16px;
-right: 16px;
+left: 50%;
+bottom: 70px; /* above Instagram link */
+transform: translateX(-50%);
 z-index: 1000;
 
-/* Wood base color */
+/* Forest green wood base */
 background-color: #1f3d2b;
-
-/* Subtle wood grain using gradients */
 background-image:
 repeating-linear-gradient(
 90deg,
@@ -56,7 +55,7 @@ to bottom,
 #1f3d2b
 );
 
-color: #e8e1cf; /* beige text */
+color: #e8e1cf; /* beige */
 
 padding: 16px 32px;
 border-radius: 8px;
@@ -67,15 +66,13 @@ font-weight: 700;
 letter-spacing: 1.6px;
 text-transform: uppercase;
 
-/* National Park sign border */
 border: 3px solid #13261b;
 
-/* Mossy edge illusion */
 box-shadow:
 0 4px 0 #13261b,
-0 0 0 4px rgba(31,61,43,0.6),
 inset 0 0 12px rgba(24,64,38,0.8);
 }
+
 .trail-sign::after {
 content: "";
 position: absolute;
@@ -88,6 +85,18 @@ transparent 60%
 );
 pointer-events: none;
 z-index: -1;
+}
+.sign-title {
+font-size: 17px;
+}
+
+.sign-subtitle {
+margin-top: 4px;
+font-size: 12px;
+font-weight: 600;
+letter-spacing: 1.2px;
+color: #d8d0b8; /* softer beige */
+opacity: 0.9;
 }
 
 /* INSTAGRAM BUTTON */
@@ -119,9 +128,15 @@ footer {
 }
 @media (max-width: 480px) {
 .trail-sign {
-top: 76px;
-right: 12px;
+bottom: 88px; /* clears Instagram pill */
 font-size: 15px;
 padding: 14px 24px;
+}.sign-title {
+font-size: 15px;
+}
+
+.sign-subtitle {
+font-size: 11px;
 }
 }
+
