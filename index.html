@@ -4,60 +4,80 @@
   <meta charset="UTF-8" />
   <title>Dirt Dorks Trail Club</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Your Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="dark">
 
+<body>
+
+  <!-- Logo -->
   <div id="intro">
-    <img src="logo.png" alt="Dirt Dorks Trail Club" />
+    <img src="logo.png" alt="Dirt Dorks Trail Club Logo" />
   </div>
 
+  <!-- Map -->
   <div id="map"></div>
 
+  <!-- Trail Sign -->
   <div class="trail-sign">
-<div class="sign-title">Welcome To The Club</div>
-<div class="sign-subtitle">Forest Park • Portland, OR</div>
-</div>
+    <div class="sign-title">Welcome To The Club</div>
+    <div class="sign-subtitle">Forest Park • Portland, OR</div>
+  </div>
 
+  <!-- Footer -->
   <footer class="site-footer">
 
-  <!-- Instagram -->
-  <a href="https://instagram.com/dirtdorks"
-     target="_blank"
-     class="social-btn instagram-btn">
+    <!-- Instagram Button -->
+    <a href="https://instagram.com/dirtdorks"
+       target="_blank"
+       class="social-btn instagram-btn">
 
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round"
-         stroke-linejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5"></rect>
-      <circle cx="12" cy="12" r="4"></circle>
-      <circle cx="18" cy="6" r="1"></circle>
-    </svg>
+      <svg viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           width="20"
+           height="20">
 
-    @dirtdorks
-  </a>
+        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+        <circle cx="12" cy="12" r="4"></circle>
+        <circle cx="18" cy="6" r="1"></circle>
 
-  <!-- Strava -->
-  <a href="https://www.strava.com/clubs/DirtDorksTC"
-     target="_blank"
-     class="social-btn strava-btn">
+      </svg>
 
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M15.3 3L9.7 14h3.4l2.2-4.5L18 14h3.4z"/>
-      <path d="M9.5 17l-1.8 4h3.6z"/>
-    </svg>
+      @dirtdorks
+    </a>
 
-    Dirt Dorks TC on Strava
-  </a>
+    <!-- Strava Button -->
+    <a href="https://www.strava.com/clubs/DirtDorksTC"
+       target="_blank"
+       class="social-btn strava-btn">
 
-</footer>
+      <svg viewBox="0 0 24 24"
+           fill="currentColor"
+           width="20"
+           height="20">
 
+        <path d="M15.3 3L9.7 14h3.4l2.2-4.5L18 14h3.4z"/>
+        <path d="M9.5 17l-1.8 4h3.6z"/>
+
+      </svg>
+
+      Dirt Dorks TC on Strava
+    </a>
+
+  </footer>
+
+  <!-- Leaflet Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
   <script src="script.js"></script>
+
 </body>
-
 </html>
-
-
