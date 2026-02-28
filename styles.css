@@ -1,4 +1,7 @@
-html, body {@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700&display=swap')
+/* GOOGLE FONT — must be at top */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700&display=swap');
+
+html, body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -33,74 +36,73 @@ html, body {@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alt
 
 /* TRAIL SIGN */
 .trail-sign {
-position: absolute;
-left: 50%;
-bottom: 70px; /* above Instagram link */
-transform: translateX(-50%);
-z-index: 1000;
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
+  z-index: 1000;
 
-/* Forest green wood base */
-background-color: #1f3d2b;
-background-image:
-repeating-linear-gradient(
-90deg,
-rgba(255,255,255,0.03) 0px,
-rgba(255,255,255,0.03) 1px,
-transparent 1px,
-transparent 4px
-),
-linear-gradient(
-to bottom,
-#274a35,
-#1f3d2b
-);
+  background-color: #1f3d2b;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    linear-gradient(
+      to bottom,
+      #274a35,
+      #1f3d2b
+    );
 
-color: #e8e1cf; /* beige */
+  color: #e8e1cf;
 
-padding: 16px 32px;
-border-radius: 8px;
+  padding: 16px 32px;
+  border-radius: 8px;
 
-font-family: 'Montserrat Alternates', sans-serif;
-font-size: 17px;
-font-weight: 700;
-letter-spacing: 1.6px;
-text-transform: uppercase;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
 
-border: 3px solid #13261b;
+  border: 3px solid #13261b;
 
-box-shadow:
-0 4px 0 #13261b,
-inset 0 0 12px rgba(24,64,38,0.8);
+  box-shadow:
+    0 4px 0 #13261b,
+    inset 0 0 12px rgba(24,64,38,0.8);
 }
 
 .trail-sign::after {
-content: "";
-position: absolute;
-inset: -6px;
-border-radius: 10px;
-background: radial-gradient(
-circle at top left,
-rgba(95,140,90,0.35),
-transparent 60%
-);
-pointer-events: none;
-z-index: -1;
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 10px;
+  background: radial-gradient(
+    circle at top left,
+    rgba(95,140,90,0.35),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
+
 .sign-title {
-font-size: 17px;
+  font-size: 17px;
 }
 
 .sign-subtitle {
-margin-top: 4px;
-font-size: 12px;
-font-weight: 600;
-letter-spacing: 1.2px;
-color: #d8d0b8; /* softer beige */
-opacity: 0.9;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #d8d0b8;
+  opacity: 0.9;
 }
 
-/* INSTAGRAM BUTTON */
-/* SAFE FOOTER (scrolls normally) */
+/* SAFE FOOTER */
 
 .site-footer {
   background: #f3f6f2;
@@ -111,7 +113,7 @@ opacity: 0.9;
   gap: 12px;
 }
 
-/* Buttons */
+/* Social Buttons */
 
 .social-btn {
   display: inline-flex;
