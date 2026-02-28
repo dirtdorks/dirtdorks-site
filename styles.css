@@ -166,22 +166,9 @@ body::before {
   animation: fogMove 120s linear infinite;
 }
 
-/* Fog layer 2 (slower, different direction) */
-
-body::after {
-  background-image:
-    radial-gradient(circle at 70% 30%, #ffffff 0%, transparent 60%),
-    radial-gradient(circle at 30% 70%, #ffffff 0%, transparent 60%);
-  opacity: 0.12;
-  animation: fogMoveReverse 180s linear infinite;
-}
-
-@keyframes fogMove {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-200px); }
-}
 
 @keyframes fogMoveReverse {
   from { transform: translateX(0); }
   to   { transform: translateX(200px); }
 }
+
