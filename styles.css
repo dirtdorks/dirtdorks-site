@@ -104,13 +104,35 @@ html, body {
 
 /* SAFE FOOTER */
 
-.site-footer {
-  background: #f3f6f2;
-  padding: 30px 16px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+footer {
+position: absolute;
+bottom: 16px;
+left: 0;
+right: 0;
+z-index: 1000;
+pointer-events: none; /* prevents blocking map gestures */
+}
+
+footer .social {
+position: absolute;
+bottom: 0;
+background: rgba(15, 26, 20, 0.85);
+color: #b7e4c7;
+padding: 10px 16px;
+border-radius: 20px;
+text-decoration: none;
+font-weight: 600;
+font-size: 14px;
+letter-spacing: 0.5px;
+pointer-events: auto; /* buttons still clickable */
+}
+
+footer .social.left {
+left: 16px;
+}
+
+footer .social.right {
+right: 16px;
 }
 
 /* =========================
@@ -162,3 +184,4 @@ html, body {
   background: #FC4C02;
   color: white;
 }
+
