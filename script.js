@@ -18,15 +18,7 @@ color: '#b6f2c2', // brighter forest green
 weight: 4, // thicker = emphasis
 opacity: 1,
 lineCap: 'round'
-}new L.GPX('trails/forest-park-trails.gpx', {
-async: true,
-polyline_options: {
-color: '#4c8f6b',
-weight: 8,
-opacity: 0.25,
-lineCap: 'round'
 }
-}).addTo(map);
 
   },
   marker_options: {
@@ -38,3 +30,4 @@ lineCap: 'round'
   map.fitBounds(e.target.getBounds());
 
 }).addTo(map);
+
