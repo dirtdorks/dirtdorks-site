@@ -5,10 +5,10 @@ const map = L.map('map', {
 
 // Lighter Topographic Base Map
 L.tileLayer(
-'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-{
-attribution: '&copy; OpenStreetMap',
-opacity: 0.65
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {
+    attribution:'&copy; OpenStreetMap contributors',
+    opacity: 0.6
 }
 ).addTo(map);
 
@@ -30,4 +30,5 @@ lineCap: 'round'
   map.fitBounds(e.target.getBounds());
 
 }).addTo(map);
+
 
