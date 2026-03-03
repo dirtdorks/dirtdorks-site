@@ -185,3 +185,17 @@ right: 16px;
   color: white;
 }
 
+/* Soft vignette to focus Forest Park */
+#map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 500;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(15, 26, 20, 0) 55%,
+    rgba(15, 26, 20, 0.35) 100%
+  );
+}
