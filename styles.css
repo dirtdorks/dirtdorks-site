@@ -301,3 +301,29 @@ html, body {
   border-radius: 6px;
   font-weight: 600;
 }
+
+/* =========================
+   DESKTOP BOARD FIX
+========================= */
+
+.board-wrapper {
+  max-width: 900px;   /* prevents giant stretching */
+  margin: 0 auto;
+}
+
+.bulletin-board {
+  max-width: 100%;
+}
+
+/* Make calendar image scale nicely */
+.calendar-image {
+  width: 100%;
+  height: auto;
+}
+
+/* Large screen polish */
+@media (min-width: 1200px) {
+  .board-wrapper {
+    max-width: 850px;
+  }
+}
