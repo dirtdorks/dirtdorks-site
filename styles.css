@@ -286,3 +286,18 @@ html, body {
 .back-link:hover {
   opacity: 0.7;
 }
+
+.events-link {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  padding: 10px 18px;
+  background: #6b4f2a;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
