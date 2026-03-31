@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Co-Leaders · Dirt Dorks Trail Club</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Map background (fixed, same as welcome page) ── */
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      filter: saturate(1.1) brightness(0.88);
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(12,6,2,0.65) 100%);
+      pointer-events: none;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(0,0,0,0.5) !important;
+      color: #bbb !important;
+      font-size: 10px !important;
+    }
+    .leaflet-control-attribution a { color: #a5c89a !important; }
+
+    /* ── Page content ── */
+    #page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1.2rem 3rem;
+    }
+
+    /* Back link */
+    .back {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #e0ccaa;
+      margin-bottom: 2rem;
+      padding: 0.38rem 0.75rem;
+      background:
+        repeating-linear-gradient(91deg, transparent, transparent 3px, rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 5px),
+        linear-gradient(160deg, #8a5025 0%, #6a3a18 100%);
+      border-top: 3px solid #432206;
+      border-bottom: 3px solid #432206;
+      border-left: 2px solid #522a0c;
+      border-right: 2px solid #522a0c;
+      border-radius: 1px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .back:hover { transform: translateY(-2px); filter: brightness(1.15); }
+
+    /* Header plaque */
+    .header-plaque {
+      text-align: center;
+      margin-bottom: 2.2rem;
+      animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .header-plaque h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      letter-spacing: 0.08em;
+      color: #f0ddb0;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .header-plaque p {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(235,210,160,0.6);
+    }
+
+    .header-rule {
+      width: 48px;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, rgba(210,160,70,0.7), transparent);
+      margin: 0.5rem auto 0;
+    }
+
+    /* ── Leader cards ── */
+    .leaders {
+      display: flex;
+      gap: 1.6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 860px;
+    }
+
+    /* Wood card */
+    .card {
+      flex: 1 1 320px;
+      max-width: 390px;
+      background-color: #7a4a22;
+      background-image:
+        repeating-linear-gradient(91deg,
+          transparent, transparent 3px,
+          rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 6px),
+        repeating-linear-gradient(179deg,
+          transparent, transparent 14px,
+          rgba(255,255,255,0.018) 14px, rgba(255,255,255,0.018) 28px),
+        linear-gradient(180deg,
+          #9c5e2a 0%,
+          #7a4822 22%,
+          #6b3c1a 48%,
+          #7a4822 72%,
+          #8c5228 100%);
+      border-top: 7px solid #432206;
+      border-bottom: 7px solid #432206;
+      border-left: 3px solid #522a0c;
+      border-right: 3px solid #522a0c;
+      border-radius: 2px;
+      box-shadow:
+        0 20px 55px rgba(4,1,0,0.72),
+        0 3px 0 rgba(255,175,70,0.07) inset,
+        0 -2px 0 rgba(0,0,0,0.4) inset;
+      overflow: hidden;
+      animation: fadeUp 0.9s cubic-bezier(.16,1,.3,1) both;
+      position: relative;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.12s; }
+
+    /* Plank seam */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 10px; right: 10px;
+      top: 46%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,0,0,0.2) 15%, rgba(0,0,0,0.2) 85%, transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top-left nail */
+    .card::after {
+      content: '';
+      position: absolute;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, #ddb06a 10%, #5e3208 72%);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.3);
+      top: 11px; left: 13px;
+      z-index: 2;
+    }
+
+    /* Photo */
+    .card-photo {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      filter: sepia(0.15) brightness(0.95);
+      border-bottom: 3px solid #432206;
+    }
+
+    /* Photo placeholder */
+    .card-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 3px solid #432206;
+      color: rgba(235,210,165,0.4);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .card-photo-placeholder svg { opacity: 0.35; }
+
+    /* Card body */
+    .card-body {
+      padding: 1.1rem 1.2rem 1.1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 0.06em;
+      color: #f0ddb0;
+      line-height: 1;
+      margin-bottom: 0.2rem;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+
+    .card-role {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(180,220,150,0.7);
+      margin-bottom: 0.75rem;
+    }
+
+    .card-rule {
+      width: 30px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(210,160,70,0.55), transparent);
+      margin-bottom: 0.75rem;
+    }
+
+    .card-bio {
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: rgba(240,220,175,0.82);
+      font-weight: 300;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    /* Favorite trail */
+    .card-trail {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(120,170,90,0.25);
+      border-radius: 2px;
+      padding: 0.42rem 0.7rem;
+      margin-bottom: 1rem;
+    }
+    .card-trail-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(150,200,120,0.65);
+      white-space: nowrap;
+    }
+    .card-trail-name {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #c8e8b0;
+      letter-spacing: 0.03em;
+    }
+
+    /* Social links */
+    .card-socials {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .card-socials a {
+      display: flex;
+      align-items: center;
+      gap: 0.38rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 2px;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      flex: 1;
+      justify-content: center;
+    }
+    .card-socials a:hover { transform: translateY(-2px); filter: brightness(1.18); }
+
+    .social-instagram { background: rgba(28,14,4,0.9);  color: #f0ddb0; border: 1px solid rgba(190,130,50,0.2); }
+    .social-strava    { background: rgba(215,62,0,0.9);  color: #fff; }
+
+    .icon { width: 12px; height: 12px; flex-shrink: 0; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+  <div id="vignette"></div>
+
+  <div id="page">
+
+    <a class="back" href="index.html">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back to Home
+    </a>
+
+    <div class="header-plaque">
+      <h1>Co-Leaders</h1>
+      <p>The humans keeping us on trail</p>
+      <div class="header-rule"></div>
+    </div>
+
+    <div class="leaders">
+
+      <!-- ── Leader 1 ── -->
+      <div class="card">
+        <img class="card-photo" src="jakepic.jpeg" alt="Jake Williams" />
+        <div class="card-body">
+          <div class="card-name">Jake Williams</div>
+          <div class="card-role">Community Energy Organizer · he/him</div>
+          <div class="card-rule"></div>
+          <p class="card-bio">
+            Jake has been running since 2020, it all began with 1 mile around the block. Now with Two 50k races under his belt, his mantra is A.M.F. (Always Move Forward)<br><br>
+            While his legs are long, he is always down to share miles at any pace. He's here to support you achieving your highest goals!<br><br>
+            His secret weapon on long runs is a Wonder Honey Bun.
+          </p>
+          <div class="card-trail">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(150,200,120,0.65)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 17l4-8 4 4 4-6 4 10"/>
+            </svg>
+            <span class="card-trail-label">Fav trail —</span>
+            <span class="card-trail-name">Holman Climb → Birch → Wildwood Loop</span>
+          </div>
+          <div class="card-socials">
+            <a class="social-instagram" href="https://www.instagram.com/slice.of.jake" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              Instagram
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Leader 2 ── -->
+      <div class="card">
+        <img class="card-photo" src="Alliepic.jpeg" alt="Allie Wieland" />
+        <div class="card-body">
+          <div class="card-name">Allie Wieland</div>
+          <div class="card-role">Climb Efficiency Optimizer · she/her</div>
+          <div class="card-rule"></div>
+          <p class="card-bio">
+            Allie has always loved running, but fell even deeper in love with the sport after moving to Portland and discovering the wonder that is trail running. Since then, she has loved pushing herself to climb more, explore new trails, and run longer distances.<br><br>
+            She loves sharing miles with friends- old and new, and seeing people achieve goals on the trail that they might not have known possible.
+          </p>
+          <div class="card-trail">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="rgba(150,200,120,0.65)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 17l4-8 4 4 4-6 4 10"/>
+            </svg>
+            <span class="card-trail-label">Fav trail —</span>
+            <span class="card-trail-name">MAC Trail → Wildwood → Pittock</span>
+          </div>
+          <div class="card-socials">
+            <a class="social-instagram" href="https://www.instagram.com/allie.wielliams" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              Instagram
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const map = L.map('map', {
+      center: [45.5596, -122.7714],
+      zoom: 14,
+      zoomControl: false,
+      scrollWheelZoom: false,
+      dragging: false,
+      keyboard: false,
+      touchZoom: false,
+      doubleClickZoom: false,
+    });
+
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 17,
+      subdomains: ['a', 'b', 'c'],
+    }).addTo(map);
+  </script>
+</body>
+</html>
