@@ -49,6 +49,10 @@ html, body {
   transform: translateX(-50%);
   z-index: 1000;
 
+  /* Prevent sign from overflowing on small screens */
+  width: max-content;
+  max-width: calc(100vw - 32px);
+
   background-color: #1f3d2b;
   background-image:
     repeating-linear-gradient(
@@ -119,8 +123,9 @@ html, body {
 .sign-links {
   margin-top: 12px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .sign-link {
@@ -141,6 +146,9 @@ html, body {
   transition:
     background 0.2s ease,
     transform 0.2s ease;
+
+  /* Prevent text wrapping inside buttons */
+  white-space: nowrap;
 }
 
 .sign-link:hover {
@@ -148,34 +156,60 @@ html, body {
   transform: translateY(-1px);
 }
 
+/* Leaders button — warm wood tone to stand out */
+.sign-link.leaders {
+  background: rgba(90, 58, 18, 0.85);
+  border-color: rgba(200, 150, 60, 0.4);
+  color: #f0ddb0;
+}
+
+.sign-link.leaders:hover {
+  background: rgba(110, 72, 22, 0.95);
+}
+
 /* =====================
    MOBILE TUNING
 ===================== */
-@media (max-width: 480px) {
+@media (max-width: 540px) {
   #intro img {
-    width: 130px;
+    width: 110px;
+  }
+
+  #intro {
+    top: 16px;
+    left: 16px;
   }
 
   .trail-sign {
-    bottom: 80px;
-    padding: 16px 26px 14px;
+    bottom: 24px;
+    padding: 14px 18px 12px;
+    width: calc(100vw - 32px);
+    max-width: 100%;
+    border-radius: 8px;
   }
 
   .sign-title {
-    font-size: 15px;
+    font-size: 14px;
+    letter-spacing: 1.2px;
   }
 
   .sign-subtitle {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .sign-links {
-    gap: 10px;
+    gap: 8px;
+    margin-top: 10px;
   }
 
   .sign-link {
     font-size: 10px;
-    padding: 5px 12px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    /* On mobile, let buttons fill row evenly in pairs */
+    flex: 1 1 calc(50% - 8px);
+    text-align: center;
+    justify-content: center;
   }
 }
 
@@ -202,7 +236,7 @@ html, body {
 
 .events-page {
   margin: 0;
-  background: #2e3b2f; /* forest dark */
+  background: #2e3b2f;
   font-family: "Georgia", serif;
   display: flex;
   justify-content: center;
@@ -229,8 +263,8 @@ html, body {
 .bulletin-board {
   position: relative;
   padding: 40px;
-  background: #c89f65; /* cork color */
-  border: 18px solid #6b4f2a; /* wood frame */
+  background: #c89f65;
+  border: 18px solid #6b4f2a;
   border-radius: 8px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.5);
 }
@@ -249,6 +283,8 @@ html, body {
 /* Calendar Image */
 .calendar-image {
   max-width: 100%;
+  width: 100%;
+  height: auto;
   border: 6px solid white;
   box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   transform: rotate(-1deg);
@@ -265,13 +301,8 @@ html, body {
   box-shadow: 0 3px 6px rgba(0,0,0,0.4);
 }
 
-.pin-left {
-  left: 40px;
-}
-
-.pin-right {
-  right: 40px;
-}
+.pin-left  { left: 40px; }
+.pin-right { right: 40px; }
 
 /* Back Link */
 .back-link {
@@ -283,9 +314,7 @@ html, body {
   transition: opacity 0.2s ease;
 }
 
-.back-link:hover {
-  opacity: 0.7;
-}
+.back-link:hover { opacity: 0.7; }
 
 .events-link {
   position: absolute;
@@ -293,32 +322,12 @@ html, body {
   bottom: 100px;
   transform: translateX(-50%);
   z-index: 1000;
-
   padding: 10px 18px;
   background: #6b4f2a;
   color: white;
   text-decoration: none;
   border-radius: 6px;
   font-weight: 600;
-}
-
-/* =========================
-   DESKTOP BOARD FIX
-========================= */
-
-.board-wrapper {
-  max-width: 900px;   /* prevents giant stretching */
-  margin: 0 auto;
-}
-
-.bulletin-board {
-  max-width: 100%;
-}
-
-/* Make calendar image scale nicely */
-.calendar-image {
-  width: 100%;
-  height: auto;
 }
 
 /* Large screen polish */
