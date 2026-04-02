@@ -167,6 +167,16 @@ html, body {
   background: rgba(110, 72, 22, 0.95);
 }
 
+.sign-link.races {
+  background: rgba(20, 60, 30, 0.88);
+  border-color: rgba(76, 220, 128, 0.35);
+  color: #b6f2c2;
+}
+
+.sign-link.races:hover {
+  background: rgba(25, 75, 38, 0.95);
+}
+
 /* =====================
    MOBILE TUNING
 ===================== */
