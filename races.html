@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Race Board · Dirt Dorks Trail Club</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: #0a1a0f;
+      overflow-x: hidden;
+    }
+
+    /* ── Map background ── */
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.38;
+      filter: saturate(0.7) brightness(0.7);
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(ellipse at center, transparent 20%, rgba(10,26,15,0.75) 100%),
+        linear-gradient(to bottom, rgba(10,26,15,0.5) 0%, transparent 20%, transparent 80%, rgba(10,26,15,0.8) 100%);
+      pointer-events: none;
+    }
+
+    /* ── Page layout ── */
+    #page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      padding: 2rem 1.2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Back button */
+    .back {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #b6f2c2;
+      margin-bottom: 2rem;
+      padding: 0.38rem 0.85rem;
+      background: rgba(15,40,20,0.75);
+      border: 1px solid rgba(182,242,194,0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .back:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.8rem;
+      animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .page-header .eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(182,242,194,0.55);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: #e8f5e2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+      line-height: 1.1;
+    }
+
+    .page-header .sub {
+      font-size: 0.78rem;
+      color: rgba(200,240,210,0.5);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .header-rule {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #4cdc80, transparent);
+      margin: 0.8rem auto 0;
+    }
+
+    /* ── Loading / error state ── */
+    #status {
+      color: rgba(182,242,194,0.6);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      padding: 3rem 0;
+      animation: pulse 1.5s ease infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    /* ── PODIUM — next race ── */
+    #podium {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 2.4rem;
+      animation: fadeUp 0.9s cubic-bezier(.16,1,.3,1) 0.1s both;
+    }
+
+    .podium-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #4cdc80;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .podium-label::before,
+    .podium-label::after {
+      content: '';
+      height: 1px;
+      width: 32px;
+      background: linear-gradient(90deg, transparent, #4cdc80);
+    }
+    .podium-label::after { transform: scaleX(-1); }
+
+    .podium-card {
+      background:
+        linear-gradient(135deg, rgba(30,70,40,0.92) 0%, rgba(15,40,20,0.95) 100%);
+      border: 1px solid rgba(76,220,128,0.35);
+      border-radius: 6px;
+      padding: 1.8rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(76,220,128,0.1),
+        0 8px 40px rgba(0,0,0,0.5),
+        0 0 60px rgba(44,180,80,0.08);
+    }
+
+    /* Shimmer line across top */
+    .podium-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #4cdc80, #b6f2c2, #4cdc80, transparent);
+    }
+
+    /* Subtle corner glow */
+    .podium-card::after {
+      content: '';
+      position: absolute;
+      top: -40px; left: -40px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(76,220,128,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .podium-countdown {
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: clamp(2.8rem, 8vw, 4.5rem);
+      font-weight: 800;
+      color: #b6f2c2;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 40px rgba(76,220,128,0.4);
+    }
+
+    .podium-countdown-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(182,242,194,0.5);
+      margin-bottom: 1.2rem;
+    }
+
+    .podium-name {
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 700;
+      color: #e8f5e2;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.3rem;
+    }
+
+    .podium-race {
+      font-size: 0.9rem;
+      color: rgba(200,240,210,0.7);
+      font-style: italic;
+      margin-bottom: 0.6rem;
+    }
+
+    .podium-date {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #4cdc80;
+      background: rgba(76,220,128,0.1);
+      border: 1px solid rgba(76,220,128,0.25);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+    }
+
+    .hype-tag {
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: rgba(182,242,194,0.7);
+    }
+
+    /* ── Upcoming list ── */
+    #upcoming-section {
+      width: 100%;
+      max-width: 600px;
+      animation: fadeUp 0.9s cubic-bezier(.16,1,.3,1) 0.2s both;
+    }
+
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(182,242,194,0.4);
+      margin-bottom: 0.8rem;
+      padding-left: 0.2rem;
+    }
+
+    .race-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .race-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(15,35,20,0.7);
+      border: 1px solid rgba(182,242,194,0.1);
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+      animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) both;
+    }
+    .race-row:hover {
+      border-color: rgba(76,220,128,0.3);
+      transform: translateX(3px);
+    }
+
+    .race-row-left { min-width: 0; }
+
+    .race-row-runner {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #d8f0de;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .race-row-name {
+      font-size: 0.72rem;
+      color: rgba(182,242,194,0.55);
+      font-style: italic;
+      margin-top: 0.1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .race-row-date {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(76,220,128,0.7);
+      white-space: nowrap;
+    }
+
+    .race-row-days {
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      color: rgba(182,242,194,0.35);
+      text-align: right;
+      margin-top: 0.15rem;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(182,242,194,0.35);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    /* ── Setup instructions (shown when using placeholder URL) ── */
+    #setup-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 600;
+      background: rgba(80,50,10,0.95);
+      border-top: 1px solid rgba(200,150,60,0.4);
+      padding: 0.8rem 1.2rem;
+      font-size: 0.7rem;
+      color: #f0ddb0;
+      text-align: center;
+      letter-spacing: 0.04em;
+      display: none;
+    }
+    #setup-banner a { color: #ffd580; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .podium-card { padding: 1.4rem 1.2rem; }
+      .page-header h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+  <div id="vignette"></div>
+  <div id="setup-banner">
+    ⚙️ <strong>Setup needed:</strong> paste your Google Sheet CSV URL into <code>SHEET_CSV_URL</code> in this file's script. 
+    <a href="https://support.google.com/docs/answer/183965" target="_blank">How to publish a Google Sheet as CSV →</a>
+  </div>
+
+  <div id="page">
+
+    <a class="back" href="index.html">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back to Home
+    </a>
+
+    <div class="page-header">
+      <p class="eyebrow">Dirt Dorks Trail Club</p>
+      <h1>Race Board</h1>
+      <p class="sub">Show up. Send it. We'll be cheering.</p>
+      <div class="header-rule"></div>
+    </div>
+
+    <div id="status">Loading race board…</div>
+
+    <div id="podium" style="display:none">
+      <div class="podium-label">Up next</div>
+      <div class="podium-card">
+        <div class="podium-countdown" id="podium-days">—</div>
+        <div class="podium-countdown-label">days to race day</div>
+        <div class="podium-name" id="podium-runner">—</div>
+        <div class="podium-race" id="podium-race">—</div>
+        <div class="podium-date" id="podium-date">—</div>
+        <div class="hype-tag">🏃 A.M.F. — Always Move Forward</div>
+      </div>
+    </div>
+
+    <div id="upcoming-section" style="display:none">
+      <div class="section-label">Also on the start line</div>
+      <div class="race-list" id="race-list"></div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // ─────────────────────────────────────────────
+    // 👇 PASTE YOUR GOOGLE SHEET CSV URL HERE
+    //    File → Share → Publish to web → CSV
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQBLOaiYvzI4TE5jHTTv4ZSIh8bmS2QMQh7vwH7fk-S88gN2YER16RXf78LTa9DG9sx8TevWWhKwwFa/pub?gid=0&single=true&output=csv';
+    // ─────────────────────────────────────────────
+
+    // ── Map background ──
+    const map = L.map('map', {
+      zoomControl: false, minZoom: 12, maxZoom: 14,
+      scrollWheelZoom: false, dragging: false,
+      keyboard: false, touchZoom: false, doubleClickZoom: false,
+    }).setView([45.5725, -122.7726], 13);
+
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 14, subdomains: ['a', 'b', 'c'], opacity: 0.6,
+      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a>'
+    }).addTo(map);
+
+    L.rectangle(
+      L.latLngBounds([44.0, -124.5], [46.5, -121.0]),
+      { color: 'transparent', fillColor: '#0a1a0f', fillOpacity: 0.45, interactive: false }
+    ).addTo(map);
+
+    // ── Helpers ──
+    function parseDate(str) {
+      // Accepts MM/DD/YYYY or YYYY-MM-DD
+      if (!str) return null;
+      str = str.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return new Date(str + 'T00:00:00');
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+        const [m, d, y] = str.split('/');
+        return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T00:00:00`);
+      }
+      return new Date(str);
+    }
+
+    function daysUntil(date) {
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      return Math.round((date - now) / 86400000);
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) return [];
+      // First row = headers
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z]/g,''));
+      return lines.slice(1).map(line => {
+        // Handle quoted fields
+        const cols = [];
+        let cur = '', inQ = false;
+        for (const ch of line) {
+          if (ch === '"') { inQ = !inQ; }
+          else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+          else cur += ch;
+        }
+        cols.push(cur.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = cols[i] || '');
+        return obj;
+      });
+    }
+
+    function render(rows) {
+      // Filter to future races only, sort by date ascending
+      const today = new Date(); today.setHours(0,0,0,0);
+      const upcoming = rows
+        .map(r => ({ ...r, _date: parseDate(r.date) }))
+        .filter(r => r._date && r._date >= today)
+        .sort((a, b) => a._date - b._date);
+
+      const statusEl = document.getElementById('status');
+
+      if (upcoming.length === 0) {
+        statusEl.textContent = 'No upcoming races yet — add yours to the sheet!';
+        statusEl.style.animation = 'none';
+        statusEl.style.opacity = '0.5';
+        return;
+      }
+
+      statusEl.style.display = 'none';
+
+      // ── Podium: first/soonest race ──
+      const next = upcoming[0];
+      const days = daysUntil(next._date);
+      document.getElementById('podium-days').textContent = days === 0 ? 'TODAY' : days;
+      document.getElementById('podium-runner').textContent = next.name || '—';
+      document.getElementById('podium-race').textContent = next.race || '—';
+      document.getElementById('podium-date').textContent = formatDate(next._date);
+      document.getElementById('podium').style.display = 'block';
+
+      // ── Rest of the list ──
+      const rest = upcoming.slice(1);
+      if (rest.length > 0) {
+        const listEl = document.getElementById('race-list');
+        rest.forEach((r, i) => {
+          const d = daysUntil(r._date);
+          const row = document.createElement('div');
+          row.className = 'race-row';
+          row.style.animationDelay = `${0.05 * i}s`;
+          row.innerHTML = `
+            <div class="race-row-left">
+              <div class="race-row-runner">${r.name || '—'}</div>
+              <div class="race-row-name">${r.race || '—'}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="race-row-date">${formatDate(r._date)}</div>
+              <div class="race-row-days">${d === 0 ? 'today!' : d === 1 ? 'tomorrow!' : `${d} days`}</div>
+            </div>`;
+          listEl.appendChild(row);
+        });
+        document.getElementById('upcoming-section').style.display = 'block';
+      }
+    }
+
+    // ── Fetch sheet ──
+    if (SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') {
+      document.getElementById('setup-banner').style.display = 'block';
+      // Show demo data so the page looks right
+      render([
+        { name: 'Jake Williams',  race: 'Gorge Waterfalls 50k',    date: '2026-05-10' },
+        { name: 'Allie Wieland',  race: 'Hagg Lake Mud Run 25k',   date: '2026-05-17' },
+        { name: 'Sam Torres',     race: 'PCT 50 Mile',              date: '2026-06-01' },
+        { name: 'Mara Chen',      race: 'Tillamook Burn 36 Mile',   date: '2026-06-14' },
+        { name: 'Devon Park',     race: 'Waldo Lake 100k',          date: '2026-07-19' },
+      ]);
+    } else {
+      fetch(SHEET_CSV_URL)
+        .then(r => { if (!r.ok) throw new Error('Sheet fetch failed'); return r.text(); })
+        .then(text => render(parseCSV(text)))
+        .catch(() => {
+          document.getElementById('status').textContent =
+            'Couldn\'t load the race board — check the sheet URL and make sure it\'s published publicly.';
+          document.getElementById('status').style.animation = 'none';
+        });
+    }
+  </script>
+</body>
+</html>
