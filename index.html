@@ -37,26 +37,49 @@
       >
         Strava
       </a>
-      <a
-        href="events.html"
-        class="sign-link"
-      >
-        Monthly Events
-      </a>
-      <a
-        href="leaders.html"
-        class="sign-link leaders"
-      >
-        Meet the Leaders
-      </a>
-      <a
-        href="races.html"
-        class="sign-link races"
-      >
-        Race Board
-      </a>
+      <div class="sign-dropdown-wrap">
+        <button class="sign-link sign-link-explore" id="explore-btn" aria-haspopup="true" aria-expanded="false">
+          Explore ▾
+        </button>
+        <div class="sign-dropdown" id="explore-menu" role="menu">
+          <a href="events.html" class="dropdown-item" role="menuitem">📅 Monthly Events</a>
+          <a href="leaders.html" class="dropdown-item" role="menuitem">🌲 Meet the Leaders</a>
+          <a href="races.html" class="dropdown-item" role="menuitem">🏃 Race Board</a>
+        </div>
+      </div>
     </div>
   </div>
+  <!-- Explore dropdown toggle -->
+  <script>
+    (function() {
+      const btn  = document.getElementById('explore-btn');
+      const menu = document.getElementById('explore-menu');
+
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = menu.classList.toggle('open');
+        btn.classList.toggle('active', isOpen);
+        btn.setAttribute('aria-expanded', isOpen);
+      });
+
+      // Close when clicking anywhere else
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+        btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', false);
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          menu.classList.remove('open');
+          btn.classList.remove('active');
+          btn.setAttribute('aria-expanded', false);
+        }
+      });
+    })();
+  </script>
+
   <!-- Leaflet Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
