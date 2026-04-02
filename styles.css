@@ -52,6 +52,8 @@ html, body {
   /* Prevent sign from overflowing on small screens */
   width: max-content;
   max-width: calc(100vw - 32px);
+  /* Allow dropdown to escape upward */
+  overflow: visible;
 
   background-color: #1f3d2b;
   background-image:
@@ -183,6 +185,8 @@ html, body {
 .sign-dropdown-wrap {
   position: relative;
   display: inline-block;
+  /* Ensure dropdown escapes any overflow:hidden on parents */
+  z-index: 1001;
 }
 
 .sign-link-explore {
