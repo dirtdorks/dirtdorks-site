@@ -236,6 +236,26 @@
       color: rgba(182,242,194,0.7);
     }
 
+    /* Multiple runners on same podium date */
+    #podium-runners {
+      margin-bottom: 0.6rem;
+    }
+
+    .podium-runner-block {
+      padding: 0.2rem 0;
+    }
+
+    .podium-runner-block.multi {
+      padding: 0.5rem 0;
+    }
+
+    .podium-divider {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(76,220,128,0.3), transparent);
+      margin: 0.1rem auto;
+    }
+
     /* ── Upcoming list ── */
     #upcoming-section {
       width: 100%;
@@ -382,8 +402,7 @@
       <div class="podium-card">
         <div class="podium-countdown" id="podium-days">—</div>
         <div class="podium-countdown-label">days to race day</div>
-        <div class="podium-name" id="podium-runner">—</div>
-        <div class="podium-race" id="podium-race">—</div>
+        <div id="podium-runners"></div>
         <div class="podium-date" id="podium-date">—</div>
         <div class="hype-tag">🏃 A.M.F. — Always Move Forward</div>
       </div>
@@ -484,17 +503,27 @@
 
       statusEl.style.display = 'none';
 
-      // ── Podium: first/soonest race ──
-      const next = upcoming[0];
-      const days = daysUntil(next._date);
+      // ── Podium: all races on the soonest date ──
+      const nextDate = upcoming[0]._date.toDateString();
+      const podiumGroup = upcoming.filter(r => r._date.toDateString() === nextDate);
+      const rest = upcoming.filter(r => r._date.toDateString() !== nextDate);
+
+      const days = daysUntil(upcoming[0]._date);
       document.getElementById('podium-days').textContent = days === 0 ? 'TODAY' : days;
-      document.getElementById('podium-runner').textContent = next.name || '—';
-      document.getElementById('podium-race').textContent = next.race || '—';
-      document.getElementById('podium-date').textContent = formatDate(next._date);
+      document.getElementById('podium-date').textContent = formatDate(upcoming[0]._date);
+
+      // Render one runner block per person on the podium date
+      const runnersEl = document.getElementById('podium-runners');
+      runnersEl.innerHTML = podiumGroup.map((r, i) => `
+        <div class="podium-runner-block${podiumGroup.length > 1 ? ' multi' : ''}" style="animation-delay:${0.08*i}s">
+          <div class="podium-name">${r.name || '—'}</div>
+          <div class="podium-race">${r.race || '—'}</div>
+        </div>
+      `).join(podiumGroup.length > 1 ? '<div class="podium-divider"></div>' : '');
+
       document.getElementById('podium').style.display = 'block';
 
       // ── Rest of the list ──
-      const rest = upcoming.slice(1);
       if (rest.length > 0) {
         const listEl = document.getElementById('race-list');
         rest.forEach((r, i) => {
