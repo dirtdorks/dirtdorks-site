@@ -399,25 +399,25 @@
     <div class="page-header">
       <img src="logo.png" alt="Dirt Dorks Trail Club" class="page-logo" />
       <h1>Race Board</h1>
-      <p class="sub">Show up. Send it. We'll be cheering.</p>
+      <p class="sub">Show up & Send it! You are the G.O.A.T.</p>
       <div class="header-rule"></div>
     </div>
 
     <div id="status">Loading race board…</div>
 
     <div id="podium" style="display:none">
-      <div class="podium-label">Up next</div>
+      <div class="podium-label">On the Start Line</div>
       <div class="podium-card">
         <div class="podium-countdown" id="podium-days">—</div>
         <div class="podium-countdown-label">days to race day</div>
         <div id="podium-runners"></div>
         <div class="podium-date" id="podium-date">—</div>
-        <div class="hype-tag">🏃 A.M.F. — Always Move Forward</div>
+        <div class="hype-tag"> A.M.F. — Always Move Forward</div>
       </div>
     </div>
 
     <div id="upcoming-section" style="display:none">
-      <div class="section-label">Also on the start line</div>
+      <div class="section-label">On Deck</div>
       <div class="race-list" id="race-list"></div>
     </div>
 
@@ -432,20 +432,23 @@
     // ─────────────────────────────────────────────
 
     // ── Map background ──
+
     const map = L.map('map', {
-      zoomControl: false, minZoom: 12, maxZoom: 14,
+      zoomControl: false, minZoom: 14, maxZoom: 14,
       scrollWheelZoom: false, dragging: false,
       keyboard: false, touchZoom: false, doubleClickZoom: false,
-    }).setView([45.5725, -122.7726], 13);
+    }).setView([45.5725, -122.7726], 14);
 
     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 14, subdomains: ['a', 'b', 'c'], opacity: 0.6,
-      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a>'
+      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 16,
+      subdomains: ['a', 'b', 'c'],
+      opacity: 0.55,
     }).addTo(map);
 
     L.rectangle(
       L.latLngBounds([44.0, -124.5], [46.5, -121.0]),
-      { color: 'transparent', fillColor: '#0a1a0f', fillOpacity: 0.45, interactive: false }
+      { color: 'transparent', fillColor: '#0a1a0f', fillOpacity: 0.65, interactive: false }
     ).addTo(map);
 
     // ── Helpers ──
