@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Routes · Dirt Dorks Trail Club</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: #0a1a0f;
+      overflow-x: hidden;
+    }
+
+    /* ── Map background ── */
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      filter: saturate(1.1) brightness(0.88);
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(ellipse at center, transparent 20%, rgba(10,26,15,0.75) 100%),
+        linear-gradient(to bottom, rgba(10,26,15,0.5) 0%, transparent 20%, transparent 80%, rgba(10,26,15,0.8) 100%);
+      pointer-events: none;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(0,0,0,0.5) !important;
+      color: #bbb !important;
+      font-size: 10px !important;
+    }
+    .leaflet-control-attribution a { color: #a5c89a !important; }
+
+    /* ── Page ── */
+    #page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      padding: 2rem 1.2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Back */
+    .back {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #b6f2c2;
+      margin-bottom: 2rem;
+      padding: 0.38rem 0.85rem;
+      background: rgba(15,40,20,0.75);
+      border: 1px solid rgba(182,242,194,0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .back:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .page-logo {
+      width: clamp(80px, 10vw, 110px);
+      height: auto;
+      display: block;
+      margin: 0 auto 0.8rem;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.65));
+    }
+
+    .page-header h1 {
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: #e8f5e2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+      line-height: 1.1;
+    }
+
+    .page-header .sub {
+      font-size: 0.78rem;
+      color: rgba(200,240,210,0.6);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .header-rule {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #4cdc80, transparent);
+      margin: 0.8rem auto 0;
+    }
+
+    /* ── Distance key ── */
+    .distance-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s cubic-bezier(.16,1,.3,1) 0.1s both;
+    }
+
+    .key-pill {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.85rem;
+      border-radius: 20px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .key-pill:hover { transform: translateY(-1px); opacity: 0.85; }
+    .key-pill.easy    { color: #86efac; border-color: rgba(134,239,172,0.4); background: rgba(134,239,172,0.08); }
+    .key-pill.moderate{ color: #fcd34d; border-color: rgba(252,211,77,0.4);  background: rgba(252,211,77,0.08); }
+    .key-pill.hard    { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
+    .key-pill.epic    { color: #c084fc; border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.08); }
+
+    /* ── Route cards grid ── */
+    .routes-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    /* Route card */
+    .route-card {
+      background: rgba(12,28,16,0.82);
+      border: 1px solid rgba(182,242,194,0.12);
+      border-radius: 6px;
+      overflow: hidden;
+      animation: fadeUp 0.7s cubic-bezier(.16,1,.3,1) both;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .route-card:hover {
+      border-color: rgba(76,220,128,0.3);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Card header — clickable to expand */
+    .route-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .route-header-left { min-width: 0; }
+
+    .route-name {
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #d8f0de;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .route-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      color: rgba(182,242,194,0.6);
+      font-weight: 500;
+    }
+    .stat svg { opacity: 0.5; flex-shrink: 0; }
+
+    .difficulty-badge {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      border: 1px solid;
+      flex-shrink: 0;
+    }
+    .difficulty-badge.easy     { color: #86efac; border-color: rgba(134,239,172,0.4); background: rgba(134,239,172,0.08); }
+    .difficulty-badge.moderate { color: #fcd34d; border-color: rgba(252,211,77,0.4);  background: rgba(252,211,77,0.08); }
+    .difficulty-badge.hard     { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
+    .difficulty-badge.epic     { color: #c084fc; border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.08); }
+
+    /* Chevron */
+    .route-chevron {
+      color: rgba(182,242,194,0.3);
+      transition: transform 0.25s ease, color 0.2s ease;
+      flex-shrink: 0;
+    }
+    .route-card.open .route-chevron {
+      transform: rotate(180deg);
+      color: rgba(76,220,128,0.6);
+    }
+
+    /* Expandable body */
+    .route-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(.16,1,.3,1);
+      border-top: 0px solid rgba(182,242,194,0.1);
+    }
+    .route-card.open .route-body {
+      max-height: 600px;
+      border-top-width: 1px;
+    }
+
+    .route-body-inner {
+      padding: 1rem 1.1rem 1.2rem;
+    }
+
+    /* Strava embed */
+    .strava-embed {
+      width: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.85rem;
+      border: 1px solid rgba(182,242,194,0.1);
+      background: rgba(0,0,0,0.3);
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .strava-embed iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+      display: block;
+    }
+
+    /* Placeholder shown before real route ID is added */
+    .embed-placeholder {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: rgba(182,242,194,0.25);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+    }
+    .embed-placeholder svg { margin-bottom: 0.5rem; opacity: 0.3; }
+
+    /* Strava CTA */
+    .strava-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      background: rgba(215,62,0,0.85);
+      padding: 0.45rem 0.9rem;
+      border-radius: 3px;
+      transition: filter 0.15s ease, transform 0.15s ease;
+    }
+    .strava-link:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    /* Training tip */
+    .route-tip {
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+      font-style: italic;
+      color: rgba(182,242,194,0.45);
+      line-height: 1.55;
+      padding-left: 0.6rem;
+      border-left: 2px solid rgba(76,220,128,0.2);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .route-name { font-size: 0.9rem; }
+      .strava-embed iframe { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+  <div id="vignette"></div>
+
+  <div id="page">
+
+    <a class="back" href="index.html">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back to Home
+    </a>
+
+    <div class="page-header">
+      <img src="logo.png" alt="Dirt Dorks Trail Club" class="page-logo" />
+      <h1>Routes</h1>
+      <p class="sub">Forest Park trails, sorted by distance. Pick your training ground.</p>
+      <div class="header-rule"></div>
+    </div>
+
+    <div class="distance-key">
+      <span class="key-pill easy">🟢 Easy</span>
+      <span class="key-pill moderate">🟡 Moderate</span>
+      <span class="key-pill hard">🔴 Hard</span>
+      <span class="key-pill epic">🟣 Epic</span>
+    </div>
+
+    <div class="routes-grid" id="routes-grid"></div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+
+    // ─────────────────────────────────────────────────────────────
+    // ROUTES — add your Strava route IDs here when ready.
+    // To get a route ID: open the route on Strava → copy the number
+    // from the URL: strava.com/routes/XXXXXXXXX
+    //
+    // difficulty: 'easy' | 'moderate' | 'hard' | 'epic'
+    // stravaId: the numeric ID from the Strava route URL (or null)
+    // stravaUrl: full URL to the route on Strava (or null)
+    // ─────────────────────────────────────────────────────────────
+    const ROUTES = [
+      {
+        name: 'Leif Erikson Out & Back',
+        distance: '4.2 mi',
+        elevation: '350 ft',
+        difficulty: 'easy',
+        tip: 'Great intro run. Flat doubletrack, perfect for shaking out the legs or a long run warm-up.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+      {
+        name: 'Firelane 1 Loop',
+        distance: '6.8 mi',
+        elevation: '820 ft',
+        difficulty: 'moderate',
+        tip: 'Good climbing practice. Prep for races with 1,000–1,500 ft of gain.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+      {
+        name: 'Wildwood to Pittock & Back',
+        distance: '9.4 mi',
+        elevation: '1,200 ft',
+        difficulty: 'moderate',
+        tip: 'Classic Dirt Dorks route. Mix of singletrack and fireroad with a rewarding city view at Pittock Mansion.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+      {
+        name: 'Holman → Birch → Wildwood Loop',
+        distance: '11.5 mi',
+        elevation: '1,650 ft',
+        difficulty: 'hard',
+        tip: 'Jake\'s favorite. Technical climbing on Holman, fast singletrack on Birch. Good 25k race simulation.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+      {
+        name: 'MAC → Wildwood → Pittock Grand Loop',
+        distance: '14.2 mi',
+        elevation: '2,100 ft',
+        difficulty: 'hard',
+        tip: 'Allie\'s favorite. MAC trail climb will test your efficiency. Save legs for the Wildwood descent.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+      {
+        name: 'Full Park Traverse',
+        distance: '26.5 mi',
+        elevation: '3,800 ft',
+        difficulty: 'epic',
+        tip: 'End-to-end Forest Park. 50k race simulation. Bring extra fuel, poles optional, Honey Bun mandatory.',
+        stravaId: null,
+        stravaUrl: null,
+      },
+    ];
+
+    // ── Render routes ──
+    const grid = document.getElementById('routes-grid');
+
+    ROUTES.forEach((route, i) => {
+      const card = document.createElement('div');
+      card.className = 'route-card';
+      card.style.animationDelay = `${0.07 * i}s`;
+
+      const embedHTML = route.stravaId
+        ? `<div class="strava-embed">
+             <iframe src="https://www.strava.com/routes/${route.stravaId}/embed"
+               allowtransparency="true" scrolling="no" loading="lazy"></iframe>
+           </div>`
+        : `<div class="strava-embed">
+             <div class="embed-placeholder">
+               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                 <path d="M3 17l4-8 4 4 4-6 4 10"/>
+               </svg>
+               <div>Strava route coming soon</div>
+             </div>
+           </div>`;
+
+      const stravaBtn = route.stravaUrl
+        ? `<a class="strava-link" href="${route.stravaUrl}" target="_blank" rel="noopener">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+               <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0 3 13.828h4.17"/>
+             </svg>
+             View on Strava
+           </a>`
+        : '';
+
+      card.innerHTML = `
+        <div class="route-header">
+          <div class="route-header-left">
+            <div class="route-name">${route.name}</div>
+            <div class="route-stats">
+              <span class="stat">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                ${route.distance}
+              </span>
+              <span class="stat">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/></svg>
+                ${route.elevation} gain
+              </span>
+              <span class="difficulty-badge ${route.difficulty}">${route.difficulty}</span>
+            </div>
+          </div>
+          <svg class="route-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="route-body">
+          <div class="route-body-inner">
+            ${embedHTML}
+            ${stravaBtn}
+            <p class="route-tip">${route.tip}</p>
+          </div>
+        </div>`;
+
+      // Toggle open/close
+      card.querySelector('.route-header').addEventListener('click', () => {
+        card.classList.toggle('open');
+      });
+
+      grid.appendChild(card);
+    });
+
+    // ── Map background ──
+    const map = L.map('map', {
+      zoomControl: false, minZoom: 14, maxZoom: 14,
+      scrollWheelZoom: false, dragging: false,
+      keyboard: false, touchZoom: false, doubleClickZoom: false,
+    }).setView([45.5725, -122.7726], 14);
+
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 16, subdomains: ['a', 'b', 'c'], opacity: 0.55,
+    }).addTo(map);
+
+    L.rectangle(
+      L.latLngBounds([44.0, -124.5], [46.5, -121.0]),
+      { color: 'transparent', fillColor: '#0a1a0f', fillOpacity: 0.65, interactive: false }
+    ).addTo(map);
+
+  </script>
+</body>
+</html>
