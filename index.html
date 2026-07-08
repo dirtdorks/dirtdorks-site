@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <link rel="icon" href="/favicon.ico?v=2">
+  <link rel="icon" href="/favicon.ico?v=2">
   <meta charset="UTF-8" />
   <title>Dirt Dorks Trail Club</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Your Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -46,6 +44,7 @@
           <a href="events.html" class="dropdown-item" role="menuitem">📅 Monthly Events</a>
           <a href="leaders.html" class="dropdown-item" role="menuitem">🌲 Meet the Leaders</a>
           <a href="races.html" class="dropdown-item" role="menuitem">🏃 Race Board</a>
+          <a href="routes.html" class="dropdown-item" role="menuitem">🗺 Routes</a>
         </div>
       </div>
     </div>
@@ -55,22 +54,17 @@
     (function() {
       const btn  = document.getElementById('explore-btn');
       const menu = document.getElementById('explore-menu');
-
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
         const isOpen = menu.classList.toggle('open');
         btn.classList.toggle('active', isOpen);
         btn.setAttribute('aria-expanded', isOpen);
       });
-
-      // Close when clicking anywhere else
       document.addEventListener('click', function() {
         menu.classList.remove('open');
         btn.classList.remove('active');
         btn.setAttribute('aria-expanded', false);
       });
-
-      // Close on Escape
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
           menu.classList.remove('open');
@@ -80,7 +74,6 @@
       });
     })();
   </script>
-
   <!-- Leaflet Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
