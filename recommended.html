@@ -114,7 +114,7 @@
     /* ── Category sections ── */
     .categories {
       width: 100%;
-      max-width: 760px;
+      max-width: 900px;
       display: flex;
       flex-direction: column;
       gap: 3rem;
@@ -150,14 +150,35 @@
       background: linear-gradient(90deg, rgba(76,220,128,0.25), transparent);
     }
 
-    /* ── Rec cards grid ── */
+    /* ── Carousel ── */
     .rec-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      display: flex;
+      flex-direction: row;
       gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.6rem;
+      /* extend past page padding so cards bleed to edge */
+      margin-left: -1.2rem;
+      margin-right: -1.2rem;
+      padding-left: 1.2rem;
+      padding-right: 1.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(76,220,128,0.22) transparent;
     }
 
+    .rec-grid::-webkit-scrollbar { height: 3px; }
+    .rec-grid::-webkit-scrollbar-track { background: transparent; }
+    .rec-grid::-webkit-scrollbar-thumb {
+      background: rgba(76,220,128,0.22);
+      border-radius: 2px;
+    }
+
+    /* ── Cards ── */
     .rec-card {
+      flex: 0 0 220px;
+      scroll-snap-align: start;
       background: rgba(12,28,16,0.82);
       border: 1px solid rgba(182,242,194,0.1);
       border-radius: 6px;
@@ -172,7 +193,7 @@
       box-shadow: 0 10px 32px rgba(0,0,0,0.45);
     }
 
-    /* Logo / image area */
+    /* Image */
     .rec-img {
       width: 100%;
       aspect-ratio: 4 / 3;
@@ -183,7 +204,6 @@
       border-bottom: 1px solid rgba(182,242,194,0.07);
     }
 
-    /* Placeholder when no image */
     .rec-img-placeholder {
       width: 100%;
       aspect-ratio: 4 / 3;
@@ -238,6 +258,7 @@
       padding: 0.32rem 0.75rem;
       align-self: flex-start;
       transition: background 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
     }
     .rec-link:hover {
       background: rgba(76,220,128,0.12);
@@ -261,11 +282,9 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 480px) {
-      .rec-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 360px) {
-      .rec-grid { grid-template-columns: 1fr; }
+    /* Mobile: cards a bit wider so you can tell there's more to swipe */
+    @media (max-width: 540px) {
+      .rec-card { flex: 0 0 72vw; }
     }
   </style>
 </head>
@@ -301,14 +320,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
 
-    // ─────────────────────────────────────────────────────────────
-    // RECOMMENDATIONS
-    // For each item:
-    //   name:  brand or business name
-    //   desc:  1-2 sentence description / why you recommend it
-    //   url:   full link to their website
-    //   img:   path to their logo image, e.g. 'logos/hoka.png' (or null)
-    // ─────────────────────────────────────────────────────────────
     const DATA = [
       {
         category: 'Gear',
@@ -334,7 +345,7 @@
           },
           {
             name: 'Leki Poles',
-            desc: 'Going for a long run with major vert? You may benefit from some assistance using poles. We love our Leki poles for their lightweight and durability',
+            desc: 'Going for a long run with major vert? You may benefit from some assistance using poles. We love our Leki poles for their lightweight and durability.',
             url: 'https://lekiusa.com/collections/trail-running',
             img: null,
           },
@@ -362,9 +373,9 @@
             url: 'https://www.precisionhydration.com/us/en/products/',
             img: null,
           },
-           {
+          {
             name: 'Salt Stick',
-            desc: 'A trip down memory lane, Salt Stick has Sour Rocket Pop Energy Gummies that will deliver quick carbs & electrolytes while reminding you of the quenching treats on a summer day',
+            desc: 'A trip down memory lane, Salt Stick has Sour Rocket Pop Energy Gummies that will deliver quick carbs & electrolytes while reminding you of the quenching treats on a summer day.',
             url: 'https://aletenutrition.com/products/saltstick-energy-gummies-sour-pop-rocket',
             img: null,
           },
@@ -401,7 +412,7 @@
       const grid = cat.items.map((item, ii) => {
         const imgHTML = item.img
           ? `<img class="rec-img" src="${item.img}" alt="${item.name}" />`
-          : `<div class="rec-img-placeholder">Add logo</div>`;
+          : `<div class="rec-img-placeholder">No image</div>`;
 
         return `
           <div class="rec-card" style="animation-delay:${0.06*ii}s">
