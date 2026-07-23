@@ -11,12 +11,11 @@ const map = L.map('map', {
 
 // OpenTopoMap — contours + named trails
 L.tileLayer(
-  'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
   {
-    attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution: '© <a href="https://www.esri.com">Esri</a>, USGS, NOAA',
     maxZoom: 16,
-    subdomains: ['a', 'b', 'c'],
-    opacity: 0.55
+    opacity: 0.92
   }
 ).addTo(map);
 
