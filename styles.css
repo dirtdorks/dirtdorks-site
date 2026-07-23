@@ -48,11 +48,8 @@ html, body {
   bottom: 90px;
   transform: translateX(-50%);
   z-index: 1000;
-
-  /* Prevent sign from overflowing on small screens */
   width: max-content;
   max-width: calc(100vw - 32px);
-  /* Allow dropdown to escape upward */
   overflow: visible;
 
   background-color: #1f3d2b;
@@ -64,29 +61,21 @@ html, body {
       transparent 1px,
       transparent 4px
     ),
-    linear-gradient(
-      to bottom,
-      #2b523a,
-      #1f3d2b
-    );
+    linear-gradient(to bottom, #2b523a, #1f3d2b);
 
   color: #e8e1cf;
-
   padding: 18px 34px 16px;
   border-radius: 10px;
-
   font-family: 'Montserrat Alternates', sans-serif;
   text-align: center;
-
   border: 3px solid #13261b;
-
   box-shadow:
     0 4px 0 #13261b,
     inset 0 0 14px rgba(24,64,38,0.85);
 }
 
-/* Mossy edge glow */
-.trail-sign::after {
+/* Mossy edge glow — using ::before so ::after is free for dropdown arrow */
+.trail-sign::before {
   content: "";
   position: absolute;
   inset: -7px;
@@ -136,20 +125,12 @@ html, body {
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-
   color: #e8e1cf;
   background: rgba(15, 26, 20, 0.6);
-
   padding: 6px 14px;
   border-radius: 14px;
-
   border: 1px solid rgba(232, 225, 207, 0.25);
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-
-  /* Prevent text wrapping inside buttons */
+  transition: background 0.2s ease, transform 0.2s ease;
   white-space: nowrap;
 }
 
@@ -158,79 +139,59 @@ html, body {
   transform: translateY(-1px);
 }
 
-/* Leaders button — warm wood tone to stand out */
-.sign-link.leaders {
-  background: rgba(90, 58, 18, 0.85);
-  border-color: rgba(200, 150, 60, 0.4);
-  color: #f0ddb0;
-}
-
-.sign-link.leaders:hover {
-  background: rgba(110, 72, 22, 0.95);
-}
-
-.sign-link.races {
-  background: rgba(20, 60, 30, 0.88);
-  border-color: rgba(76, 220, 128, 0.35);
-  color: #b6f2c2;
-}
-
-.sign-link.races:hover {
-  background: rgba(25, 75, 38, 0.95);
-}
-
 /* =====================
    EXPLORE DROPDOWN
 ===================== */
 .sign-dropdown-wrap {
   position: relative;
   display: inline-block;
-  /* Ensure dropdown escapes any overflow:hidden on parents */
   z-index: 1001;
 }
 
 .sign-link-explore {
   cursor: pointer;
   font-family: 'Montserrat Alternates', sans-serif;
-  border: none;
   background: rgba(15, 26, 20, 0.6);
   border: 1px solid rgba(232, 225, 207, 0.25);
+  color: #e8e1cf;
 }
 
 .sign-link-explore:hover,
 .sign-link-explore.active {
   background: rgba(15, 26, 20, 0.85);
+  transform: translateY(-1px);
 }
 
 .sign-dropdown {
   display: none;
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  min-width: 180px;
+  min-width: 190px;
   background-color: #1a3524;
   background-image: linear-gradient(to bottom, #22422e, #1a3524);
   border: 1px solid rgba(182, 242, 194, 0.2);
   border-radius: 8px;
-  box-shadow:
-    0 -4px 20px rgba(0,0,0,0.4),
-    inset 0 0 12px rgba(24,64,38,0.6);
-  overflow: hidden;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.45), inset 0 0 12px rgba(24,64,38,0.6);
+  /* overflow visible so the arrow pseudo shows */
+  overflow: visible;
   z-index: 2000;
-  /* Arrow pointing down */
-  margin-bottom: 2px;
 }
 
+/* Downward pointing arrow */
 .sign-dropdown::after {
   content: '';
   position: absolute;
-  bottom: -6px;
+  bottom: -7px;
   left: 50%;
   transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid #1a3524;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #1a3524;
+  pointer-events: none;
 }
 
 .sign-dropdown.open {
@@ -239,8 +200,14 @@ html, body {
 }
 
 @keyframes dropUp {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Clip items inside without clipping the arrow outside */
+.sign-dropdown-inner {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .dropdown-item {
@@ -258,37 +225,20 @@ html, body {
   white-space: nowrap;
 }
 
-.dropdown-item:last-child {
-  border-bottom: none;
-}
+.dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+.dropdown-item:last-child  { border-bottom: none; border-radius: 0 0 8px 8px; }
 
 .dropdown-item:hover {
   background: rgba(76, 220, 128, 0.12);
   color: #b6f2c2;
 }
 
-@media (max-width: 540px) {
-  .sign-dropdown {
-    min-width: 160px;
-  }
-  .dropdown-item {
-    font-size: 10px;
-    padding: 9px 14px;
-  }
-}
-
 /* =====================
    MOBILE TUNING
 ===================== */
 @media (max-width: 540px) {
-  #intro img {
-    width: 110px;
-  }
-
-  #intro {
-    top: 16px;
-    left: 16px;
-  }
+  #intro img { width: 110px; }
+  #intro { top: 16px; left: 16px; }
 
   .trail-sign {
     bottom: 24px;
@@ -298,29 +248,21 @@ html, body {
     border-radius: 8px;
   }
 
-  .sign-title {
-    font-size: 14px;
-    letter-spacing: 1.2px;
-  }
-
-  .sign-subtitle {
-    font-size: 10px;
-  }
-
-  .sign-links {
-    gap: 8px;
-    margin-top: 10px;
-  }
+  .sign-title { font-size: 14px; letter-spacing: 1.2px; }
+  .sign-subtitle { font-size: 10px; }
+  .sign-links { gap: 8px; margin-top: 10px; }
 
   .sign-link {
     font-size: 10px;
     padding: 6px 12px;
     border-radius: 12px;
-    /* On mobile, let buttons fill row evenly in pairs */
     flex: 1 1 calc(50% - 8px);
     text-align: center;
     justify-content: center;
   }
+
+  .sign-dropdown { min-width: 160px; }
+  .dropdown-item { font-size: 10px; padding: 9px 14px; }
 }
 
 /* =====================
@@ -332,7 +274,6 @@ html, body {
   inset: 0;
   pointer-events: none;
   z-index: 500;
-
   background: radial-gradient(
     ellipse at center,
     rgba(15, 26, 20, 0) 55%,
@@ -343,7 +284,6 @@ html, body {
 /* =========================
    EVENTS BULLETIN BOARD
 ========================= */
-
 .events-page {
   margin: 0;
   background: #2e3b2f;
@@ -359,17 +299,9 @@ html, body {
   width: 100%;
 }
 
-.board-header h1 {
-  color: #f3f0e6;
-  margin-bottom: 5px;
-}
+.board-header h1 { color: #f3f0e6; margin-bottom: 5px; }
+.board-header p  { color: #d9d4c8; margin-bottom: 25px; }
 
-.board-header p {
-  color: #d9d4c8;
-  margin-bottom: 25px;
-}
-
-/* Wood frame look */
 .bulletin-board {
   position: relative;
   padding: 40px;
@@ -379,7 +311,6 @@ html, body {
   box-shadow: 0 12px 30px rgba(0,0,0,0.5);
 }
 
-/* Cork texture effect */
 .bulletin-board::before {
   content: "";
   position: absolute;
@@ -390,7 +321,6 @@ html, body {
   pointer-events: none;
 }
 
-/* Calendar Image */
 .calendar-image {
   max-width: 100%;
   width: 100%;
@@ -400,7 +330,6 @@ html, body {
   transform: rotate(-1deg);
 }
 
-/* Push Pins */
 .pin {
   width: 18px;
   height: 18px;
@@ -414,7 +343,6 @@ html, body {
 .pin-left  { left: 40px; }
 .pin-right { right: 40px; }
 
-/* Back Link */
 .back-link {
   display: inline-block;
   margin-top: 30px;
@@ -423,7 +351,6 @@ html, body {
   font-weight: bold;
   transition: opacity 0.2s ease;
 }
-
 .back-link:hover { opacity: 0.7; }
 
 .events-link {
@@ -440,9 +367,6 @@ html, body {
   font-weight: 600;
 }
 
-/* Large screen polish */
 @media (min-width: 1200px) {
-  .board-wrapper {
-    max-width: 850px;
-  }
+  .board-wrapper { max-width: 850px; }
 }
