@@ -601,12 +601,11 @@
       keyboard: false, touchZoom: false, doubleClickZoom: false,
     }).setView([45.5725, -122.7726], 14);
 
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.opentopomap.org">OpenTopoMap</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 16,
-      subdomains: ['a', 'b', 'c'],
-      opacity: 0.55,
-    }).addTo(map);
+   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© <a href="https://www.esri.com">Esri</a>, USGS, NOAA',
+  maxZoom: 16,
+  opacity: 0.72,
+}).addTo(map);
 
     L.rectangle(
       L.latLngBounds([44.0, -124.5], [46.5, -121.0]),
