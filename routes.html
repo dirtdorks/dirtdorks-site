@@ -240,7 +240,7 @@
       border-top: 0px solid rgba(182,242,194,0.1);
     }
     .route-card.open .route-body {
-      max-height: 600px;
+      max-height: 900px;
       border-top-width: 1px;
     }
 
@@ -262,9 +262,9 @@
       justify-content: center;
     }
 
+    .strava-embed .strava-embed-placeholder { width: 100%; }
     .strava-embed iframe {
       width: 100%;
-      height: 220px;
       border: none;
       display: block;
     }
@@ -315,7 +315,6 @@
 
     @media (max-width: 480px) {
       .route-name { font-size: 0.9rem; }
-      .strava-embed iframe { height: 180px; }
     }
   </style>
 </head>
@@ -370,8 +369,8 @@
         elevation: '350 ft',
         difficulty: 'easy',
         tip: 'Great intro run. Flat doubletrack, perfect for shaking out the legs or a long run warm-up.',
-        stravaId: null,
-        stravaUrl: null,
+        stravaId: '3543716622847800812',
+        stravaUrl: 'https://www.strava.com/routes/3543716622847800812',
       },
       {
         name: 'Firelane 1 Loop',
@@ -379,8 +378,8 @@
         elevation: '820 ft',
         difficulty: 'moderate',
         tip: 'Good climbing practice. Prep for races with 1,000–1,500 ft of gain.',
-        stravaId: null,
-        stravaUrl: null,
+        stravaId: '3543718771654550504',
+        stravaUrl: 'https://www.strava.com/routes/3543718771654550504',
       },
       {
         name: 'Wildwood to Pittock & Back',
@@ -388,8 +387,8 @@
         elevation: '1,200 ft',
         difficulty: 'moderate',
         tip: 'Classic Dirt Dorks route. Mix of singletrack and fireroad with a rewarding city view at Pittock Mansion.',
-        stravaId: null,
-        stravaUrl: null,
+        stravaId: '3543724180700778304',
+        stravaUrl: 'https://www.strava.com/routes/3543724180700778304',
       },
       {
         name: 'Holman → Birch → Wildwood Loop',
@@ -397,17 +396,8 @@
         elevation: '1,650 ft',
         difficulty: 'hard',
         tip: 'Jake\'s favorite. Technical climbing on Holman, fast singletrack on Birch. Good 25k race simulation.',
-        stravaId: null,
-        stravaUrl: null,
-      },
-      {
-        name: 'MAC → Wildwood → Pittock Grand Loop',
-        distance: '14.2 mi',
-        elevation: '2,100 ft',
-        difficulty: 'hard',
-        tip: 'Allie\'s favorite. MAC trail climb will test your efficiency. Save legs for the Wildwood descent.',
-        stravaId: null,
-        stravaUrl: null,
+        stravaId: '3544845139263352940',
+        stravaUrl: 'https://www.strava.com/routes/3544845139263352940',
       },
       {
         name: 'Full Park Traverse',
@@ -415,8 +405,8 @@
         elevation: '3,800 ft',
         difficulty: 'epic',
         tip: 'End-to-end Forest Park. 50k race simulation. Bring extra fuel, poles optional, Honey Bun mandatory.',
-        stravaId: null,
-        stravaUrl: null,
+        stravaId: '3544852182200188336',
+        stravaUrl: 'https://www.strava.com/routes/3544852182200188336',
       },
     ];
 
@@ -430,8 +420,7 @@
 
       const embedHTML = route.stravaId
         ? `<div class="strava-embed">
-             <iframe src="https://www.strava.com/routes/${route.stravaId}/embed"
-               allowtransparency="true" scrolling="no" loading="lazy"></iframe>
+             <div class="strava-embed-placeholder" data-embed-type="route" data-embed-id="${route.stravaId}" data-style="standard"></div>
            </div>`
         : `<div class="strava-embed">
              <div class="embed-placeholder">
@@ -486,6 +475,13 @@
 
       grid.appendChild(card);
     });
+
+    // Load Strava's embed script after the cards exist so it can find the placeholders
+    if (ROUTES.some(r => r.stravaId)) {
+      const s = document.createElement('script');
+      s.src = 'https://strava-embeds.com/embed.js';
+      document.body.appendChild(s);
+    }
 
     // ── Map background ──
     const map = L.map('map', {
